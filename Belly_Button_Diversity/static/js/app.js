@@ -11,21 +11,21 @@ function buildMetadata(sample) {
     // Use `Object.entries` to add each key and value pair to the panel
     // Hint: Inside the loop, you will need to use d3 to append new
     // tags for each key-value in the metadata.
-    Object.defineProperties(sample).forEach(function ([key, value]) {
-      var row = sample_metadata.append("panel-body");
-      row.text(`${key}: ${value} \n`);
+    Object.entries(sample).forEach(([key, value]) => {
+      d3.select("#sample-metadata")
+      .append("p")
+      .text(`${key}: ${value}`);
     });
   });
 }
 function buildCharts(sample) {
   // @TODO: Use `d3.json` to fetch the sample data for the plots
-  var url = `/metadata/${sample}`;
-  d3.json(url).then(function(data){
+  d3.json(`/samples/${sample}`).then((data) => {
     // @TODO: Build a Bubble Chart using the sample data
     var x_values = data.otu_ids;
     var y_values = data.sample_values;
     var size_value = data.sample_values;
-    var label = data.out_labels;
+    var label = data.otu_labels;
     var trace1 = {
       x: x_values,
       y: y_values,
@@ -40,7 +40,7 @@ function buildCharts(sample) {
       }
     };
     var data =[trace1];
-
+    // adding comment to test
     var layout = {
       margin: { t: 30, b: 100},
       xaxis: { title: "OTU ID"},
@@ -51,24 +51,18 @@ function buildCharts(sample) {
     // @TODO: Build a Pie Chart
     // HINT: You will need to use slice() to grab the top 10 sample_values,
     // otu_ids, and labels (10 each).
-    d3.json(url).then(function(data) {  
-        var pie_values = data.sample_values.slice(0,10);
-        var pie_labels = data.otu_ids.slice(0,10);
-        var pie_hover = data.otu_labels.slice(0,10);
 
         var data = [{
-          values: pie_values,
-          labels: pie_labels,
-          hovertext: pie_hover,
+          values: size_value.slice(0,10),
+          labels: x_values.slice(0,10),
+          text: y_values.slice(0,10),
           type: 'pie'
         }];
-
+        
         Plotly.newPlot('pie', data);
 
       });
-  });
-}
-
+  };
 
 function init() {
   // Grab a reference to the dropdown select element
